@@ -23,7 +23,7 @@ import ui.CellGrid;
 import world.Agent;
 import world.Cell;
 import world.LocalCell;
-import world.impl.*;
+import world.impl.Rabbit;
 
 public class LocalEngine extends Engine {
 
@@ -170,16 +170,20 @@ public class LocalEngine extends Engine {
 		// TODO Is this right?
 		int i = minTurn - 1;
 		while (i >= 0 && states.remove(i--) != null) {
-			;
+			System.out.println("removing " + (i + 1));
 		}
 		System.out.printf("New states %d\n", states.size());
+		System.out.println("Remaining states: ");
+		for (int state : states.keySet()) {
+			System.out.println(state);
+		}
 
 	}
 
 	public void go() {
 
 		while (true) {
-			while (turn < 350) {
+			while (turn < 200) {
 				if (!rollback) {
 					turn++;
 					saveState();
@@ -488,18 +492,18 @@ public class LocalEngine extends Engine {
 				server.setCoordinates(r.sendertlx, r.sendertly, r.senderw, r.senderh);
 				System.out.println("Waiting for server to send connections.");
 				byte messageType = 0x0;
-				do{
+				do {
 					System.out.println("In DO/");
-					messageType = (byte)server.in.read();
-					switch(messageType){
-						case Message.SENDAGENT:
-							Message message = new Message();
-							message.recvAgent(server.in);
-							ReceivedAgent agent = message.recvAgent();
-							engine.placeAgent(agent.x, agent.y, agent.agent);
-							break;
+					messageType = (byte) server.in.read();
+					switch (messageType) {
+					case Message.SENDAGENT:
+						Message message = new Message();
+						message.recvAgent(server.in);
+						ReceivedAgent agent = message.recvAgent();
+						engine.placeAgent(agent.x, agent.y, agent.agent);
+						break;
 					}
-				}while(messageType == Message.SENDAGENT);
+				} while (messageType == Message.SENDAGENT);
 				ArrayList<Message.ConnectInfo> connections = Message.recvConnections(server.in);
 
 				/* Create RemoteEngine objects and start listening for messages. */

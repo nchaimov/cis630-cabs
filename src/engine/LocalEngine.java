@@ -299,12 +299,15 @@ public class LocalEngine extends Engine {
 				if (cell.getAgents().size() > 0) {
 					System.out.print(cell.getAgents().size() + " ");
 					if (enableGUI) {
-						gui.setColor(j, i, CellGrid.agent1, cell.getAgents().size());
+						for (Agent a : cell.getAgents()) {
+							gui.setColor(j, i, a.getColor());
+						}
+						gui.setColor(j, i, CellGrid.empty);
 					}
 				} else {
 					System.out.print("- ");
 					if (enableGUI) {
-						gui.setColor(j, i, CellGrid.empty, 0);
+						gui.setColor(j, i, CellGrid.empty);
 					}
 				}
 			}
@@ -331,11 +334,14 @@ public class LocalEngine extends Engine {
 						needRollback = true;
 					} else {
 						message = recvdMessages.poll();
-						/*
-						 * if (message.sign == false) {
-						 * System.out.println("Skipping antimessage in queue");
-						 * processedMessages.add(message); continue; }
-						 */
+						if (message.sign == false) {
+							if (recvdMessages.remove(message)) {
+								System.out.println("Possible");
+							}
+							System.out.println("Skipping antimessage in queue");
+							// processedMessages.add(message);
+							continue;
+						}
 					}
 				}
 				if (needRollback) {
@@ -517,10 +523,8 @@ public class LocalEngine extends Engine {
 		try {
 
 			// Client case
-			if (args.length == 1) {
-
-				isClient = true;
-				InetAddress other = InetAddress.getByName(args[0]);
+			if (isClient) {
+				InetAddress other = InetAddress.getByName(IP);
 				/* Connect to the server. */
 				Socket serverSend = new Socket(other, port);
 				/*

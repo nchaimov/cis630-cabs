@@ -5,6 +5,9 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -62,12 +65,25 @@ public class CellGrid extends JFrame {
 
 	}
 
-	public void setColor(int xPos, int yPos, Color color, int number) {
-		myList.get(yPos).get(xPos).setNumber(number);
-		myList.get(yPos).get(xPos).setBackground(color);
-		myList.get(yPos).get(xPos).paintImmediately(0, 0, myList.get(yPos).get(xPos).getWidth(),
-				myList.get(yPos).get(xPos).getHeight());
-		// this.repaint();
+	public void setColor(int xPos, int yPos, Color color) {
+		// myList.get(yPos-tly).get(xPos-tlx).setBackground(color);
+		myJCanvas c = myList.get(yPos).get(xPos);
+		if (color != CellGrid.empty) {
+			HashMap<Color, Integer> map = c.map;
+			if (map == null)
+				return;
+			if (!map.containsKey(color)) {
+				map.put(color, 1);
+			} else {
+				int count = map.get(color);
+				count++;
+				map.put(color, count);
+			}
+		}
+		c.paintImmediately(0, 0, c.getWidth(), c.getHeight());
+		if (color == CellGrid.empty) {
+			c.map.clear();
+		}
 	}
 
 	// could extend anything that's Swing (not awt)
@@ -75,8 +91,7 @@ public class CellGrid extends JFrame {
 	// This could potentially be something that held text like 4r,3g = 4
 	// rabbits, 3 grass
 	public class myJCanvas extends JPanel {
-
-		private int number = 0;
+		public HashMap<Color, Integer> map;
 
 		public myJCanvas(int tempWidth, int tempHeight) {
 			this.setSize(tempWidth, tempHeight);
@@ -88,22 +103,29 @@ public class CellGrid extends JFrame {
 			this.setPreferredSize(new Dimension(60, 60));
 		}
 
-		public void setNumber(int number) {
-			this.number = number;
-		}
-
-		@Override
-		public void paint(Graphics g) {
-			super.paint(g);
-			if (number > 0) {
-				g.setColor(Color.WHITE);
-				g.drawString("" + number, 10, 10);
-			}
-		}
-
 		public myJCanvas() {
 			this.setSize(30, 30);
 			this.setBackground(Color.blue);
+			this.map = new HashMap<Color, Integer>();
+		}
+
+		@Override
+		public void paintComponent(Graphics g) {
+			super.paintComponent(g);
+			if (map == null || map.size() == 0) {
+				g.clearRect(0, 0, this.getWidth(), this.getHeight());
+				return;
+			}
+			Set<Map.Entry<Color, Integer>> set = map.entrySet();
+			int count = set.size();
+			int n = 0;
+			int width = this.getWidth();
+			int height = this.getHeight();
+			for (Map.Entry<Color, Integer> s : set) {
+				g.setColor(s.getKey());
+				g.drawString("" + s.getValue(), n, height / 2);
+				n += width / count;
+			}
 		}
 	}
 

@@ -35,7 +35,7 @@ public class LocalEngine extends Engine {
 	int stopTurn = 50;
 	public int turn = 0;
 	boolean rollback = false;
-	boolean enableGUI = false;
+	boolean enableGUI = true;
 	HashMap<Integer, ArrayList<byte[]>> states;
 	public PriorityQueue<Message> recvdMessages;
 	LinkedList<Message> processedMessages;
@@ -299,12 +299,12 @@ public class LocalEngine extends Engine {
 				if (cell.getAgents().size() > 0) {
 					System.out.print(cell.getAgents().size() + " ");
 					if (enableGUI) {
-						gui.setColor(j, i, CellGrid.agent1);
+						gui.setColor(j, i, CellGrid.agent1, cell.getAgents().size());
 					}
 				} else {
 					System.out.print("- ");
 					if (enableGUI) {
-						gui.setColor(j, i, CellGrid.empty);
+						gui.setColor(j, i, CellGrid.empty, 0);
 					}
 				}
 			}
@@ -331,11 +331,11 @@ public class LocalEngine extends Engine {
 						needRollback = true;
 					} else {
 						message = recvdMessages.poll();
-						if (message.sign == false) {
-							System.out.println("Skipping antimessage in queue");
-							processedMessages.add(message);
-							continue;
-						}
+						/*
+						 * if (message.sign == false) {
+						 * System.out.println("Skipping antimessage in queue");
+						 * processedMessages.add(message); continue; }
+						 */
 					}
 				}
 				if (needRollback) {
